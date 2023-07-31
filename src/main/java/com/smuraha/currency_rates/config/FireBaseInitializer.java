@@ -19,7 +19,6 @@ public class FireBaseInitializer {
 
         FirebaseOptions options = FirebaseOptions.builder()
                 .setCredentials(GoogleCredentials.fromStream(serviceAccount))
-                .setDatabaseUrl("https://currencybot-71945.firebaseio.com/")
                 .build();
 
         FirebaseApp.initializeApp(options);

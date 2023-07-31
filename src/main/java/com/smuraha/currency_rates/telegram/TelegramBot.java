@@ -1,11 +1,7 @@
 package com.smuraha.currency_rates.telegram;
 
-import com.google.cloud.Timestamp;
 import com.smuraha.currency_rates.config.TelegramConfig;
-import com.smuraha.currency_rates.firebase.entity.Bank;
-import com.smuraha.currency_rates.firebase.entity.CurrencyRate;
-import com.smuraha.currency_rates.firebase.enums.Currencies;
-import com.smuraha.currency_rates.firebase.repository.BankRepository;
+import com.smuraha.currency_rates.firebase.repository.impl.BankRepositoryImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
@@ -16,8 +12,6 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import javax.annotation.PostConstruct;
-import java.math.BigDecimal;
-import java.util.List;
 
 @Component
 @Slf4j
@@ -25,7 +19,7 @@ public class TelegramBot extends TelegramLongPollingBot {
 
     private final TelegramConfig config;
     private final UpdateController updateController;
-    private final BankRepository bankRepository;
+    private final BankRepositoryImpl bankRepository;
 
 
     @PostConstruct
@@ -33,7 +27,7 @@ public class TelegramBot extends TelegramLongPollingBot {
         updateController.registerBot(this);
     }
 
-    public TelegramBot(TelegramConfig config, UpdateController updateController, BankRepository bankRepository) {
+    public TelegramBot(TelegramConfig config, UpdateController updateController, BankRepositoryImpl bankRepository) {
         super(config.getToken());
         this.config = config;
         this.updateController = updateController;
@@ -49,19 +43,7 @@ public class TelegramBot extends TelegramLongPollingBot {
         //updateController.processUpdate(update);
     }
 
-    @PostConstruct
-    public void test(){
-        Bank test = Bank.builder().bankName("Test2")
-                .id("3")
-                .rates(List.of(
-                        CurrencyRate.builder()
-                                .lastUpdate(Timestamp.now())
-                                .rateBuy(new BigDecimal("2.25"))
-                                .rateSell(new BigDecimal("2.35"))
-                                .currency(Currencies.USD).build()
-                )).build();
-        bankRepository.save(test);
-    }
+
 
     @Override
     public String getBotUsername() {

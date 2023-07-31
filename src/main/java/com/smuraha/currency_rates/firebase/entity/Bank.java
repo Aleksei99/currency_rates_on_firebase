@@ -1,10 +1,9 @@
 package com.smuraha.currency_rates.firebase.entity;
 
-import com.google.cloud.firestore.annotation.DocumentId;
-import com.google.cloud.spring.data.firestore.Document;
 import lombok.*;
 
 import java.util.List;
+import java.util.Objects;
 
 @Getter
 @Setter
@@ -12,17 +11,25 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-@Document
 public class Bank {
 
-    ///TODO https://medium.com/@claudiorauso/local-testing-spring-gcp-firestore-57f2ffc49c1e
-
     @NonNull
-    @DocumentId
     private String id;
 
     private String bankName;
 
-    @ToString.Exclude
     private List<CurrencyRate> rates;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Bank bank = (Bank) o;
+        return id.equals(bank.id) && Objects.equals(bankName, bank.bankName) && Objects.equals(rates, bank.rates);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, bankName, rates);
+    }
 }
