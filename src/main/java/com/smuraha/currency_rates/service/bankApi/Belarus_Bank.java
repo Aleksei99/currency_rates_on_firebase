@@ -3,13 +3,10 @@ package com.smuraha.currency_rates.service.bankApi;
 import com.google.cloud.Timestamp;
 import com.smuraha.currency_rates.firebase.entity.Bank;
 import com.smuraha.currency_rates.firebase.entity.CurrencyRate;
-import com.smuraha.currency_rates.firebase.repository.BankRepository;
+import com.smuraha.currency_rates.firebase.entity.repository.BankRepository;
 import com.smuraha.currency_rates.service.bankApi.dto.Belarus_Bank_Cur;
-import com.smuraha.currency_rates.service.bankApi.dto.NBRB_Bank_Cur;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -34,10 +31,15 @@ public class Belarus_Bank implements IBank{
     }
 
     @Override
+    public String getBankName() {
+        return BANK_NAME;
+    }
+
+    @Override
     public void updateBankData() {
         ParameterizedTypeReference<List<Belarus_Bank_Cur>> bankDtoBean =
                 new ParameterizedTypeReference<>() {};
-        List<Belarus_Bank_Cur> rawDataObjects = extractRawDataFromBankApi(BANK_UPDATE_URL,restTemplate,bankDtoBean);
+        List<Belarus_Bank_Cur> rawDataObjects = extractRawDataFromBankApi_JSON(BANK_UPDATE_URL,restTemplate,bankDtoBean);
         Bank bank = convertRawDataToBankWithCurrencies(rawDataObjects.get(0));
         bankRepository.save(bank);
     }
@@ -47,7 +49,7 @@ public class Belarus_Bank implements IBank{
         List<CurrencyRate> currencyRates = List.of(
                 CurrencyRate.builder()
                         .currency("USD")
-                        .lastUpdate(Timestamp.of(java.sql.Timestamp.valueOf(LocalDate.now().atStartOfDay())))
+                        .lastUpdate(Timestamp.of(java.sql.Timestamp.valueOf(LocalDate.now().atStartOfDay().plusHours(3))))
                         .rateBuy(BigDecimal.valueOf(Double.parseDouble(bank.getUSD_in())))
                         .rateSell(BigDecimal.valueOf(Double.parseDouble(bank.getUSD_out())))
                         .rateOfficial(null)
@@ -55,7 +57,7 @@ public class Belarus_Bank implements IBank{
                         .build(),
                 CurrencyRate.builder()
                         .currency("EUR")
-                        .lastUpdate(Timestamp.of(java.sql.Timestamp.valueOf(LocalDate.now().atStartOfDay())))
+                        .lastUpdate(Timestamp.of(java.sql.Timestamp.valueOf(LocalDate.now().atStartOfDay().plusHours(3))))
                         .rateBuy(BigDecimal.valueOf(Double.parseDouble(bank.getEUR_in())))
                         .rateSell(BigDecimal.valueOf(Double.parseDouble(bank.getEUR_out())))
                         .rateOfficial(null)
@@ -63,7 +65,7 @@ public class Belarus_Bank implements IBank{
                         .build(),
                 CurrencyRate.builder()
                         .currency("RUB")
-                        .lastUpdate(Timestamp.of(java.sql.Timestamp.valueOf(LocalDate.now().atStartOfDay())))
+                        .lastUpdate(Timestamp.of(java.sql.Timestamp.valueOf(LocalDate.now().atStartOfDay().plusHours(3))))
                         .rateBuy(BigDecimal.valueOf(Double.parseDouble(bank.getRUB_in())))
                         .rateSell(BigDecimal.valueOf(Double.parseDouble(bank.getRUB_out())))
                         .rateOfficial(null)
@@ -71,7 +73,7 @@ public class Belarus_Bank implements IBank{
                         .build(),
                 CurrencyRate.builder()
                         .currency("PLN")
-                        .lastUpdate(Timestamp.of(java.sql.Timestamp.valueOf(LocalDate.now().atStartOfDay())))
+                        .lastUpdate(Timestamp.of(java.sql.Timestamp.valueOf(LocalDate.now().atStartOfDay().plusHours(3))))
                         .rateBuy(BigDecimal.valueOf(Double.parseDouble(bank.getPLN_in())))
                         .rateSell(BigDecimal.valueOf(Double.parseDouble(bank.getPLN_out())))
                         .rateOfficial(null)

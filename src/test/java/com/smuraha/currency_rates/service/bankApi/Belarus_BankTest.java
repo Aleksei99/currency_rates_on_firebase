@@ -3,7 +3,7 @@ package com.smuraha.currency_rates.service.bankApi;
 import com.google.cloud.Timestamp;
 import com.smuraha.currency_rates.firebase.entity.Bank;
 import com.smuraha.currency_rates.firebase.entity.CurrencyRate;
-import com.smuraha.currency_rates.firebase.repository.BankRepository;
+import com.smuraha.currency_rates.firebase.entity.repository.BankRepository;
 import com.smuraha.currency_rates.service.bankApi.dto.Belarus_Bank_Cur;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -78,7 +78,7 @@ class Belarus_BankTest {
         List<CurrencyRate> currencyRates = List.of(
                 CurrencyRate.builder()
                         .currency("USD")
-                        .lastUpdate(Timestamp.of(java.sql.Timestamp.valueOf(LocalDate.now().atStartOfDay())))
+                        .lastUpdate(Timestamp.of(java.sql.Timestamp.valueOf(LocalDate.now().atStartOfDay().plusHours(3))))
                         .rateBuy(BigDecimal.valueOf(1.234))
                         .rateSell(BigDecimal.valueOf(1.345))
                         .rateOfficial(null)
@@ -86,7 +86,7 @@ class Belarus_BankTest {
                         .build(),
                 CurrencyRate.builder()
                         .currency("EUR")
-                        .lastUpdate(Timestamp.of(java.sql.Timestamp.valueOf(LocalDate.now().atStartOfDay())))
+                        .lastUpdate(Timestamp.of(java.sql.Timestamp.valueOf(LocalDate.now().atStartOfDay().plusHours(3))))
                         .rateBuy(BigDecimal.valueOf(2.567))
                         .rateSell(BigDecimal.valueOf(2.678))
                         .rateOfficial(null)
@@ -94,7 +94,7 @@ class Belarus_BankTest {
                         .build(),
                 CurrencyRate.builder()
                         .currency("RUB")
-                        .lastUpdate(Timestamp.of(java.sql.Timestamp.valueOf(LocalDate.now().atStartOfDay())))
+                        .lastUpdate(Timestamp.of(java.sql.Timestamp.valueOf(LocalDate.now().atStartOfDay().plusHours(3))))
                         .rateBuy(BigDecimal.valueOf(2.8))
                         .rateSell(BigDecimal.valueOf(3.6))
                         .rateOfficial(null)
@@ -102,7 +102,7 @@ class Belarus_BankTest {
                         .build(),
                 CurrencyRate.builder()
                         .currency("PLN")
-                        .lastUpdate(Timestamp.of(java.sql.Timestamp.valueOf(LocalDate.now().atStartOfDay())))
+                        .lastUpdate(Timestamp.of(java.sql.Timestamp.valueOf(LocalDate.now().atStartOfDay().plusHours(3))))
                         .rateBuy(BigDecimal.valueOf(7.2))
                         .rateSell(BigDecimal.valueOf(7.65))
                         .rateOfficial(null)

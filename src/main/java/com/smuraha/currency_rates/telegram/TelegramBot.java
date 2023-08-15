@@ -1,7 +1,6 @@
 package com.smuraha.currency_rates.telegram;
 
 import com.smuraha.currency_rates.config.TelegramConfig;
-import com.smuraha.currency_rates.firebase.repository.impl.BankRepositoryImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
@@ -19,7 +18,6 @@ public class TelegramBot extends TelegramLongPollingBot {
 
     private final TelegramConfig config;
     private final UpdateController updateController;
-    private final BankRepositoryImpl bankRepository;
 
 
     @PostConstruct
@@ -27,22 +25,16 @@ public class TelegramBot extends TelegramLongPollingBot {
         updateController.registerBot(this);
     }
 
-    public TelegramBot(TelegramConfig config, UpdateController updateController, BankRepositoryImpl bankRepository) {
+    public TelegramBot(TelegramConfig config, UpdateController updateController) {
         super(config.getToken());
         this.config = config;
         this.updateController = updateController;
-        this.bankRepository = bankRepository;
     }
 
     @Override
     public void onUpdateReceived(Update update) {
-        //Firestore firestore = FirestoreClient.getFirestore();
-        //ApiFuture<DocumentReference> future = firestore.collection("RawData").add(update);
-
-        //firestore.collection("Bank").add(test);
-        //updateController.processUpdate(update);
+        updateController.processUpdate(update);
     }
-
 
 
     @Override

@@ -2,10 +2,7 @@ package com.smuraha.currency_rates.firebase.entity;
 
 import com.google.cloud.Timestamp;
 import com.smuraha.currency_rates.firebase.enums.UserState;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.List;
 
@@ -13,6 +10,7 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class User {
 
     private Long telegramUserId;

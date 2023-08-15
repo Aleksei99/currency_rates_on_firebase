@@ -3,12 +3,10 @@ package com.smuraha.currency_rates.service.bankApi;
 import com.google.cloud.Timestamp;
 import com.smuraha.currency_rates.firebase.entity.Bank;
 import com.smuraha.currency_rates.firebase.entity.CurrencyRate;
-import com.smuraha.currency_rates.firebase.repository.BankRepository;
+import com.smuraha.currency_rates.firebase.entity.repository.BankRepository;
 import com.smuraha.currency_rates.service.bankApi.dto.NBRB_Bank_Cur;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -32,10 +30,15 @@ public class NBRB_Bank implements IBank{
     }
 
     @Override
+    public String getBankName() {
+        return BANK_NAME;
+    }
+
+    @Override
     public void updateBankData() {
         ParameterizedTypeReference<List<NBRB_Bank_Cur>> bankDtoBean =
                 new ParameterizedTypeReference<>() {};
-        List<NBRB_Bank_Cur> rawDataObjects = extractRawDataFromBankApi(BANK_UPDATE_URL,restTemplate,bankDtoBean);
+        List<NBRB_Bank_Cur> rawDataObjects = extractRawDataFromBankApi_JSON(BANK_UPDATE_URL,restTemplate,bankDtoBean);
         Bank bank = convertRawDataToBankWithCurrencies(rawDataObjects);
         bankRepository.save(bank);
     }
