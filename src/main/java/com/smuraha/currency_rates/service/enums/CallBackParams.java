@@ -12,5 +12,11 @@ public enum CallBackParams {
     /**
      * Current page
      */
-    P
+    P,
+    /**
+     * is back button?
+     * 1 - yes
+     * 0 - no
+     */
+    K
 }

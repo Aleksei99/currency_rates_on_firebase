@@ -1,5 +1,6 @@
 package com.smuraha.currency_rates.service.util;
 
+import com.smuraha.currency_rates.firebase.entity.CurrencyRate;
 import com.smuraha.currency_rates.service.enums.CallBackParams;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
@@ -11,13 +12,13 @@ import java.util.List;
 import java.util.Map;
 
 public interface TelegramUI {
-    SendMessage getMessageWithButtons(List<List<InlineKeyboardButton>> buttons, String text);
+    SendMessage getMessageWithButtons(List<List<InlineKeyboardButton>> buttons, String text,Long chatId);
 
-    // String getBankFormedRates(Bank bank);
+    String getFormedRate(CurrencyRate rate);
 
     // List<List<InlineKeyboardButton>> getCurrencyButtons(List<Currencies> currencies,CallBackKeys cbs) throws JsonProcessingException;
 
     List<InlineKeyboardButton> getCustomPager(CustomCallBack customCallBack, int page, int totalPages);
 
-    void drawChart(Map<LocalDate, List<BigDecimal>> data, String chatId) throws IOException;
+    void drawChart(Map<LocalDate, BigDecimal> data, String chatId) throws IOException;
 }

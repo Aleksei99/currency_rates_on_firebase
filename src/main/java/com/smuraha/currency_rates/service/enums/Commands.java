@@ -11,7 +11,8 @@ public enum Commands {
     START("/start"),
     RATES_STAT("/rates_stat"),
     SUBSCRIBE("/subscribe"),
-    UNSUBSCRIBE("/unsubscribe");
+    UNSUBSCRIBE("/unsubscribe"),
+    CANCEL("/cancel");
 
     private final String command;
 

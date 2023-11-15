@@ -20,4 +20,10 @@ public interface IBank {
                 bankDtoBean);
         return response.getBody();
     }
+
+    static String getBankNameByBankId(List<IBank> banks,String id){
+        return banks.stream()
+                .filter(iBank -> iBank.getBankId().equals(id))
+                .findFirst().get().getBankName();
+    }
 }

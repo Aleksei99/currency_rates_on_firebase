@@ -5,6 +5,7 @@ import com.smuraha.currency_rates.firebase.entity.User;
 import com.smuraha.currency_rates.firebase.enums.UserState;
 import com.smuraha.currency_rates.service.RawDataService;
 import com.smuraha.currency_rates.service.UserService;
+import com.smuraha.currency_rates.service.enums.Commands;
 import com.smuraha.currency_rates.service.processor.ProcessorService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,13 +25,17 @@ import java.io.Serializable;
 public class UpdateController {
 
     private TelegramBot telegramBot;
+    private ProcessorService processorService;
     private final MessageGenerator messageGenerator;
-    private final ProcessorService processorService;
     private final RawDataService rawDataService;
     private final UserService userService;
 
     public void registerBot(TelegramBot telegramBot) {
         this.telegramBot = telegramBot;
+    }
+
+    public void registerProcessor(ProcessorService processorService) {
+        this.processorService = processorService;
     }
 
     public void processUpdate(Update update) {
@@ -50,14 +55,13 @@ public class UpdateController {
     private void distributeMessageByType(Update update) {
         Message message = update.getMessage();
         rawDataService.add(new RawData(update));
-        User user = userService.findOrSaveUser(update);
+        User user = userService.findOrSaveUserFromUpdate(update);
         if (message.hasText()) {
             String text = message.getText();
-            ///TODO реализовать обработку
-            if (text.equals("/cancel")) {
-                processorService.processCancel(update, user);
-            } else if (user.getUserState().equals(UserState.WAIT_FOR_TIME_PICK)) {
-                processorService.processUserInput(update, user);
+            if (text.equals(Commands.CANCEL.getCommand())) {
+                processorService.processCommand(update);
+            } else if (user.getUserState().equals(UserState.WAIT_FOR_TIME_PICK) && user.getWaitForApproveSubscriptionBC()!=null) {
+                processorService.processCustomActionSetSubscriptionNotificationTime(update);
             } else if (message.isCommand()) {
                 processorService.processCommand(update);
             } else {
@@ -70,7 +74,7 @@ public class UpdateController {
             setUnsupportedMessageType(message);
         }
     }
-//
+
     private void setUnsupportedMessageType(Message message) {
         if (message.getChat().getType().equals("private")) {
             SendMessage sendMessage = messageGenerator.generateSendMessageWithText(message, "Бот не поддерживает отправку файлов!");
@@ -78,7 +82,7 @@ public class UpdateController {
         }
     }
 
-    public  <T extends Serializable> void processMessage(PartialBotApiMethod<T> message) {
+    public <T extends Serializable> void processMessage(PartialBotApiMethod<T> message) {
         if (message instanceof SendMessage) {
             setView((SendMessage) message);
         } else if (message instanceof DeleteMessage) {

@@ -1,5 +1,6 @@
 package com.smuraha.currency_rates.service.util;
 
+import com.smuraha.currency_rates.firebase.entity.CurrencyRate;
 import com.smuraha.currency_rates.service.enums.CallBackParams;
 import lombok.RequiredArgsConstructor;
 import org.apache.http.HttpEntity;
@@ -27,7 +28,6 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import static com.smuraha.currency_rates.service.enums.CallBackParams.P;
 
@@ -38,27 +38,32 @@ public class TelegramUIImpl implements TelegramUI {
     private final JsonMapper jsonMapper;
 
     @Override
-    public SendMessage getMessageWithButtons(List<List<InlineKeyboardButton>> buttons, String text) {
+    public SendMessage getMessageWithButtons(List<List<InlineKeyboardButton>> buttons, String text,Long chatId) {
         SendMessage sendMessage = new SendMessage();
         sendMessage.setParseMode(ParseMode.HTML);
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
         inlineKeyboardMarkup.setKeyboard(buttons);
         sendMessage.setReplyMarkup(inlineKeyboardMarkup);
         sendMessage.setText(text);
+        sendMessage.setChatId(chatId);
         return sendMessage;
     }
 
-//    @Override
-//    public String getBankFormedRates(Bank bank) {
-//        StringBuilder builder = new StringBuilder();
-//        CurrencyRate rate = bank.getRates().get(0);
-//        builder.append("<b>").append(bank.getBankName()).append("</b> \uD83D\uDCB0").append("\n")
-//                .append("❌ Сдать ").append(rate.getCurrency()).append(" : ").append(rate.getRateBuy()).append("\n")
-//                .append("✅ Купить ").append(rate.getCurrency()).append(" : ").append(rate.getRateSell()).append("\n")
-//                .append("\uD83D\uDD57").append(" ").append(rate.getLastUpdate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))).append("\n")
-//                .append("\n");
-//        return builder.toString();
-//    }
+    @Override
+    public String getFormedRate(CurrencyRate rate) {
+        StringBuilder builder = new StringBuilder();
+        builder.append("<b>").append(rate.getCurrency()).append("</b> \uD83D\uDCB0").append("\n");
+        if(rate.getRateOfficial()!=null){
+            builder.append("✅ Официальный курс ").append(rate.getCurrency()).append(" : ").append(rate.getRateOfficial()).append("\n");
+        }else {
+            builder.append("❌ Сдать ").append(rate.getCurrency()).append(" : ").append(rate.getRateBuy()).append("\n")
+                    .append("✅ Купить ").append(rate.getCurrency()).append(" : ").append(rate.getRateSell()).append("\n");
+        }
+        builder.append("\uD83D\uDCB1").append(" Цена за ").append(rate.getScale()).append(" ").append(rate.getCurrency()).append("\n")
+        .append("\uD83D\uDD57").append(" ").append(rate.getLastUpdate()).append("\n")
+                .append("\n");
+        return builder.toString();
+    }
 //
 //    @Override
 //    public List<List<InlineKeyboardButton>> getCurrencyButtons(List<Currencies> currencies, CallBackKeys cbs) throws JsonProcessingException {
@@ -111,10 +116,9 @@ public class TelegramUIImpl implements TelegramUI {
         return pager;
     }
 
-    @Override
-    public void drawChart(Map<LocalDate, List<BigDecimal>> data, String chatId) throws IOException {
-        int width = 800;
-        int height = 600;
+    private byte[] getImageOfChartInBytes(Map<LocalDate, BigDecimal> data) throws IOException {
+        int width = 1920;
+        int height = 1080;
 
         BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
         Graphics2D g2d = image.createGraphics();
@@ -133,7 +137,7 @@ public class TelegramUIImpl implements TelegramUI {
 
         // Определяем минимальное и максимальное значение на оси Y
 
-        List<BigDecimal> listOfValues = data.values().stream().flatMap(List::stream).collect(Collectors.toList());
+        List<BigDecimal> listOfValues = data.values().stream().toList();
         BigDecimal maxValue = listOfValues.stream().max(BigDecimal::compareTo).get();
         BigDecimal minValue = listOfValues.stream().min(BigDecimal::compareTo).get();
         List<BigDecimal> setOfValues = new ArrayList<>();
@@ -145,7 +149,7 @@ public class TelegramUIImpl implements TelegramUI {
         int numPoints = data.size();
 
         // Определяем шаг по оси X
-        double xStep = (double) graphWidth / (numPoints - 1);
+        double xStep = (double) graphWidth / (numPoints-2);
 
         // Определяем шаг по оси Y
         double yStep = (double) graphHeight / (maxValue.subtract(minValue)).doubleValue();
@@ -163,31 +167,24 @@ public class TelegramUIImpl implements TelegramUI {
 
         // Рисуем точки и соединяем их линиями
         int x = padding;
-        int yBuyPrev = 0;
-        int ySellPrev = 0;
-        for (Map.Entry<LocalDate, List<BigDecimal>> entry : data.entrySet()) {
+        int y = 0;
+        //int ySellPrev = 0;
+        for (Map.Entry<LocalDate, BigDecimal> entry : data.entrySet()) {
             String key = entry.getKey().toString().substring(5);
-            double buy = entry.getValue().get(0).doubleValue();
-            double sell = entry.getValue().get(1).doubleValue();
+            double buy = entry.getValue().doubleValue();
+            //double sell = entry.getValue().get(1).doubleValue();
 
             // Рисуем точку
             int yBuy = height - 30 - padding - (int) ((buy - minValue.doubleValue()) * yStep);
-            int ySell = height - 30 - padding - (int) ((sell - minValue.doubleValue()) * yStep);
+            //int ySell = height - 30 - padding - (int) ((sell - minValue.doubleValue()) * yStep);
             g2d.fillOval(x - 2, yBuy - 2, 4, 4);
-            g2d.fillOval(x - 2, ySell - 2, 4, 4);
-            if (yBuyPrev != 0 && ySellPrev != 0) {
+            //g2d.fillOval(x - 2, ySell - 2, 4, 4);
+            if (y != 0) {
                 g2d.setColor(Color.BLUE);
-                g2d.drawLine((int) (x - xStep), yBuyPrev, x, yBuy);
-                g2d.setColor(Color.RED);
-                g2d.drawLine((int) (x - xStep), ySellPrev, x, ySell);
+                g2d.drawLine((int) (x - xStep), y, x, yBuy);
             }
             g2d.setColor(Color.BLACK);
-            yBuyPrev = yBuy;
-            ySellPrev = ySell;
-
-            // Рисуем подпись по оси X (ключ из мапы)
-            g2d.drawString(key, x - 10, height - padding + 25);
-            g2d.drawLine(x, height - padding - 5, x, height - padding + 5);
+            y = yBuy;
 
             // Переходим к следующей точке по оси X
             x += xStep;
@@ -198,8 +195,12 @@ public class TelegramUIImpl implements TelegramUI {
         // Convert the image to bytes
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ImageIO.write(image, "png", baos);
-        byte[] imageBytes = baos.toByteArray();
+        return baos.toByteArray();
+    }
 
+    @Override
+    public void drawChart(Map<LocalDate, BigDecimal> data, String chatId) throws IOException {
+        byte[] imageBytes = getImageOfChartInBytes(data);
         // Send the image to the Telegram bot
         sendImageToTelegramBot(imageBytes, chatId);
     }
@@ -207,7 +208,7 @@ public class TelegramUIImpl implements TelegramUI {
     private void sendImageToTelegramBot(byte[] imageBytes, String chatId) throws IOException {
         // Telegram bot API endpoint
         String botToken = System.getenv("BOT_TOKEN");
-        String botApiUrl = "https://api.telegram.org/bot" + botToken + "/sendPhoto";
+        String botApiUrl = "https://api.telegram.org/bot" + botToken + "/sendDocument";
 
         // Create an HTTP client
         CloseableHttpClient httpClient = HttpClients.createDefault();
@@ -219,7 +220,7 @@ public class TelegramUIImpl implements TelegramUI {
         // Build the multipart/form-data request entity
         HttpEntity requestEntity = MultipartEntityBuilder.create()
                 .addPart("chat_id", new StringBody(chatId, ContentType.TEXT_PLAIN))
-                .addPart("photo", imageBody)
+                .addPart("document", imageBody)
                 .build();
 
         // Set the request entity

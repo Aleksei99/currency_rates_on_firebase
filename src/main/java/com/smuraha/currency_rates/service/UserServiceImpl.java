@@ -15,7 +15,7 @@ public class UserServiceImpl implements UserService{
     private final UserRepository userRepo;
 
     @Override
-    public User findOrSaveUser(Update update) {
+    public User findOrSaveUserFromUpdate(Update update) {
         org.telegram.telegrambots.meta.api.objects.User from = update.getMessage().getFrom();
         User user = userRepo.findUserById(from.getId()).orElse(
                 User.builder()
@@ -29,5 +29,22 @@ public class UserServiceImpl implements UserService{
         );
         user.setLastActionDate(Timestamp.now());
         return userRepo.save(user);
+    }
+
+    @Override
+    public void updateUser(User user) {
+        userRepo.save(user);
+    }
+
+    @Override
+    public void removeUnActiveSubscriptionsByUserId(Long userId) {
+        User user = userRepo.findUserById(userId).orElseThrow(RuntimeException::new);
+        user.removeUnActiveSubscriptions();
+        updateUser(user);
+    }
+
+    @Override
+    public User findUserById(Long id) {
+        return userRepo.findUserById(id).orElseThrow(RuntimeException::new);
     }
 }
