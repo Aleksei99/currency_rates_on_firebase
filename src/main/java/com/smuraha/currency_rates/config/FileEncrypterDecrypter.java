@@ -38,12 +38,11 @@ class FileEncrypterDecrypter {
 
     }
 
-    InputStream decrypt(String fileName) throws InvalidAlgorithmParameterException, InvalidKeyException, IOException {
-        FileInputStream fileIn = new FileInputStream(fileName);
+    InputStream decrypt(InputStream inputStream) throws InvalidAlgorithmParameterException, InvalidKeyException, IOException {
         byte[] fileIv = new byte[16];
-        fileIn.read(fileIv);
+        inputStream.read(fileIv);
         cipher.init(Cipher.DECRYPT_MODE, secretKey, new IvParameterSpec(fileIv));
-        return new CipherInputStream(fileIn, cipher);
+        return new CipherInputStream(inputStream, cipher);
 
     }
 }

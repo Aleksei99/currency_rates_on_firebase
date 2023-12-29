@@ -25,7 +25,7 @@ public class FireBaseInitializer {
 
         FileEncrypterDecrypter fileEncrypterDecrypter
                 = new FileEncrypterDecrypter(secretKey, "AES/CBC/PKCS5Padding");
-        InputStream serviceAccount = fileEncrypterDecrypter.decrypt("firebase.enc");
+        InputStream serviceAccount = fileEncrypterDecrypter.decrypt(Thread.currentThread().getContextClassLoader().getResourceAsStream("firebase.enc"));
 
         FirebaseOptions options = FirebaseOptions.builder()
                 .setCredentials(GoogleCredentials.fromStream(serviceAccount))
