@@ -41,7 +41,9 @@ public class Belarus_Bank implements IBank{
                 new ParameterizedTypeReference<>() {};
         List<Belarus_Bank_Cur> rawDataObjects = extractRawDataFromBankApi_JSON(BANK_UPDATE_URL,restTemplate,bankDtoBean);
         Bank bank = convertRawDataToBankWithCurrencies(rawDataObjects.get(0));
-        bankRepository.save(bank);
+        if(bank!=null) {
+            bankRepository.save(bank);
+        }
     }
 
     private Bank convertRawDataToBankWithCurrencies(Belarus_Bank_Cur bank) {

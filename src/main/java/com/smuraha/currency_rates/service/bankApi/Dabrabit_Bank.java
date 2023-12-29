@@ -46,7 +46,9 @@ public class Dabrabit_Bank implements IBank {
         if (root == null)
             return;
         Bank bank = convertRawDataToBankWithCurrencies(root);
-        bankRepository.save(bank);
+        if(bank!=null) {
+            bankRepository.save(bank);
+        }
     }
 
     private Bank convertRawDataToBankWithCurrencies(Root root) {

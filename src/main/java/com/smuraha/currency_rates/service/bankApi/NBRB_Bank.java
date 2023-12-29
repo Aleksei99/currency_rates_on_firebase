@@ -48,7 +48,9 @@ public class NBRB_Bank implements IBank, IChart_NBRB {
                 };
         List<NBRB_Bank_Cur> rawDataObjects = extractRawDataFromBankApi_JSON(BANK_UPDATE_URL, restTemplate, bankDtoBean);
         Bank bank = convertRawDataToBankWithCurrencies(rawDataObjects);
-        bankRepository.save(bank);
+        if(bank!=null) {
+            bankRepository.save(bank);
+        }
     }
 
     @Override

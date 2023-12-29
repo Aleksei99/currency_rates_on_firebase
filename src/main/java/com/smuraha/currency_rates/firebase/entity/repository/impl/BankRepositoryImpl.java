@@ -20,8 +20,9 @@ import java.util.concurrent.ExecutionException;
 public class BankRepositoryImpl extends FirebaseRepo implements BankRepository {
 
     @Override
-    @CachePut(value = "bank",key = "#bank.id")
-    public void save(@NonNull Bank bank){
+    @CachePut(value = "bank",key = "#bank.id",unless="#result==null")
+    public void save(Bank bank){
+        log.info("putting in cache bank");
         collection.document(bank.getId()).set(bank);
     }
 
