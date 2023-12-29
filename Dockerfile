@@ -17,4 +17,4 @@ COPY --from=build /app/target/tg_bot .
 ENV TZ=Europe/Minsk
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 # Set the command to run the application
-CMD ["java", "-jar", "my-application.jar"]
+CMD ["java", "-jar", "tg_bot.jar"]
