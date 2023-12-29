@@ -12,7 +12,7 @@ FROM eclipse-temurin:17
 # Set the working directory in the container
 WORKDIR /app
 # Copy the built JAR file from the previous stage to the container
-COPY --from=build /app/target/tg_bot .
+COPY --from=build /app/target/tg_bot.jar .
 
 ENV TZ=Europe/Minsk
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
