@@ -22,7 +22,7 @@ import java.util.concurrent.ExecutionException;
 @FirebaseCollection(name = "User")
 public class UserRepositoryImpl extends FirebaseRepo implements UserRepository {
     @Override
-    @Cacheable(value = "user")
+    @Cacheable(value = "user", unless="#result == null")
     public Optional<User> findUserById(Long userId) {
         log.info("Слазил в базу за юзером с id="+userId);
         ApiFuture<DocumentSnapshot> apiFuture = collection.document(Long.toString(userId)).get();
